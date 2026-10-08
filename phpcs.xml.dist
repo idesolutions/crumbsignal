@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<ruleset name="CrumbSignal">
+	<description>WordPress Coding Standards for CrumbSignal.</description>
+
+	<file>.</file>
+	<exclude-pattern>/languages/*</exclude-pattern>
+	<exclude-pattern>/assets/*</exclude-pattern>
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/tests/*</exclude-pattern>
+	<exclude-pattern>*/index\.php$</exclude-pattern>
+
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+
+	<config name="minimum_supported_wp_version" value="6.4"/>
+	<config name="testVersion" value="8.0-"/>
+
+	<!--
+	Exclusions below codify choices this codebase already made deliberately,
+	rather than pre-existing accidents, so `phpcs` stays a signal for real
+	regressions instead of a wall of noise against a style that was a
+	conscious call. None of these are WordPress.org Plugin Check blockers.
+	-->
+	<rule ref="WordPress">
+		<!-- Column-aligning `=>`/`=` across every array and assignment is high-churn busywork with no readability payoff at this codebase's line lengths. -->
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment"/>
+		<exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+		<!-- Terse `@param`/`@return`-only docblocks are used intentionally throughout, not omitted by accident. -->
+		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
+		<exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop"/>
+		<exclude name="Generic.Commenting.DocComment.MissingShort"/>
+		<!-- The admin screen's field-rendering helpers use single-line `<?php ... ?>` template blocks by design (see class-crumbsignal-admin.php); this is one consistent idiom, not a formatting slip. -->
+		<exclude name="Squiz.PHP.EmbeddedPhp.MultipleStatements"/>
+		<exclude name="Generic.Formatting.DisallowMultipleStatements"/>
+		<exclude name="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace"/>
+		<exclude name="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.ContentBeforeEnd"/>
+		<exclude name="Squiz.PHP.EmbeddedPhp.ContentBeforeOpen"/>
+		<!-- A small associative array passed inline as a single call argument reads better than exploding it across a dozen lines; this only applies to call-site arguments, not standalone array declarations. -->
+		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound"/>
+		<!-- `?:` is used sparingly and only where the fallback is a one-word default; it reads fine here. -->
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
+		<!-- The top comment in the main plugin file is the required WordPress Plugin Header (parsed by WP core as plain text, not phpDocumentor), formatted as a plain block comment to match this publisher's other WordPress.org plugins. -->
+		<exclude name="Squiz.Commenting.FileComment.WrongStyle"/>
+	</rule>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="crumbsignal"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="PHPCompatibilityWP"/>
+</ruleset>

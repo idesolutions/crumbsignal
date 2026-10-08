@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Floor (Requires PHP) and the newest widely-available release, per
+        # DEVELOPMENT.md's release checklist.
+        php: ['8.0', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: WordPress Coding Standards (phpcs)
+        run: composer lint
+
+      - name: Unit tests (phpunit)
+        run: composer test
+
+  plugin-check:
+    name: WordPress Plugin Check
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble a release-shaped build
+        # Plugin Check evaluates a directory as if it were the unzipped plugin a
+        # reviewer downloads from WordPress.org, so this mirrors the release
+        # checklist's package contents rather than the full dev repo (composer
+        # files, tests/, CI config) to avoid flagging our own tooling.
+        run: |
+          mkdir -p build/crumbsignal
+          cp -r assets includes languages build/crumbsignal/
+          cp crumbsignal.php index.php uninstall.php readme.txt LICENSE build/crumbsignal/
+
+      - name: Run Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './build/crumbsignal'
