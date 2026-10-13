@@ -28,6 +28,7 @@ final class CrumbSignal_Settings {
 			'accent_color'           => '#6d4aff',
 			'background_color'       => '#ffffff',
 			'text_color'             => '#17151f',
+			'button_text_color'      => '#ffffff',
 			'show_revisit'           => 1,
 			'revisit_position'       => 'left',
 			'heading'                => __( 'Your privacy choices', 'crumbsignal' ),
@@ -88,7 +89,7 @@ final class CrumbSignal_Settings {
 		$output['position']         = in_array( $input['position'] ?? '', array( 'bottom', 'bottom-left', 'bottom-right' ), true ) ? $input['position'] : 'bottom';
 		$output['revisit_position'] = in_array( $input['revisit_position'] ?? '', array( 'left', 'right' ), true ) ? $input['revisit_position'] : 'left';
 
-		foreach ( array( 'accent_color', 'background_color', 'text_color' ) as $color ) {
+		foreach ( array( 'accent_color', 'background_color', 'text_color', 'button_text_color' ) as $color ) {
 			$output[ $color ] = sanitize_hex_color( $input[ $color ] ?? '' ) ?: $defaults[ $color ];
 		}
 

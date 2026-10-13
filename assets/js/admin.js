@@ -26,7 +26,8 @@
     var colorProperties = {
       accent_color: '--crumbsignal-accent',
       background_color: '--crumbsignal-bg',
-      text_color: '--crumbsignal-text'
+      text_color: '--crumbsignal-text',
+      button_text_color: '--crumbsignal-accent-text'
     };
     Object.keys(colorProperties).forEach(function (key) {
       var input = fieldByKey(key);
@@ -76,6 +77,7 @@
     var accent = fieldByKey('accent_color');
     var background = fieldByKey('background_color');
     var text = fieldByKey('text_color');
+    var buttonText = fieldByKey('button_text_color');
     var acceptLine = report.querySelector('[data-contrast="accept"]');
     var rejectLine = report.querySelector('[data-contrast="reject"]');
 
@@ -89,12 +91,12 @@
     }
 
     function render() {
-      if (!accent || !background || !text) return;
-      renderLine(acceptLine, l10n.acceptLabel, contrastRatio(accent.value, '#ffffff'));
+      if (!accent || !background || !text || !buttonText) return;
+      renderLine(acceptLine, l10n.acceptLabel, contrastRatio(accent.value, buttonText.value));
       renderLine(rejectLine, l10n.rejectLabel, contrastRatio(text.value, background.value));
     }
 
-    [accent, background, text].forEach(function (input) {
+    [accent, background, text, buttonText].forEach(function (input) {
       if (input) input.addEventListener('input', render);
     });
     render();

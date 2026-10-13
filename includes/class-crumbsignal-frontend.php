@@ -189,10 +189,11 @@ JS;
 		}
 
 		$custom = sprintf(
-			'#crumbsignal-root{--crumbsignal-accent:%1$s;--crumbsignal-bg:%2$s;--crumbsignal-text:%3$s;}%4$s',
+			'#crumbsignal-root{--crumbsignal-accent:%1$s;--crumbsignal-bg:%2$s;--crumbsignal-text:%3$s;--crumbsignal-accent-text:%4$s;}%5$s',
 			sanitize_hex_color( self::$settings['accent_color'] ) ?: '#6d4aff',
 			sanitize_hex_color( self::$settings['background_color'] ) ?: '#ffffff',
 			sanitize_hex_color( self::$settings['text_color'] ) ?: '#17151f',
+			sanitize_hex_color( self::$settings['button_text_color'] ?? '' ) ?: '#ffffff',
 			self::$settings['custom_css']
 		);
 		wp_add_inline_style( 'crumbsignal', $custom );

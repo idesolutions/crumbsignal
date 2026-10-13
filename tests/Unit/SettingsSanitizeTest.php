@@ -77,6 +77,13 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertSame( '#123abc', $output['accent_color'] );
 	}
 
+	public function test_accept_button_text_color_defaults_to_white_and_is_validated(): void {
+		$this->assertSame( '#ffffff', CrumbSignal_Settings::defaults()['button_text_color'] );
+		$this->assertSame( '#ffffff', CrumbSignal_Settings::sanitize( array() )['button_text_color'], 'absent falls back to white' );
+		$this->assertSame( '#000000', CrumbSignal_Settings::sanitize( array( 'button_text_color' => '#000000' ) )['button_text_color'] );
+		$this->assertSame( '#ffffff', CrumbSignal_Settings::sanitize( array( 'button_text_color' => 'black' ) )['button_text_color'], 'a non-hex value falls back to white' );
+	}
+
 	public function test_gtm_id_is_validated_and_uppercased(): void {
 		$output = CrumbSignal_Settings::sanitize( array( 'gtm_id' => 'gtm-abc123' ) );
 

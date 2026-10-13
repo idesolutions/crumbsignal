@@ -151,6 +151,7 @@ final class CrumbSignal_Admin {
 						<?php self::color( 'accent_color', __( 'Accent color', 'crumbsignal' ), $s['accent_color'], __( 'Used for the Accept button.', 'crumbsignal' ) ); ?>
 						<?php self::color( 'background_color', __( 'Background color', 'crumbsignal' ), $s['background_color'], __( 'Banner background. Also the Reject button\'s text color.', 'crumbsignal' ) ); ?>
 						<?php self::color( 'text_color', __( 'Text color', 'crumbsignal' ), $s['text_color'], __( 'Banner text. Also the Reject button\'s background.', 'crumbsignal' ) ); ?>
+						<?php self::color( 'button_text_color', __( 'Accept button text color', 'crumbsignal' ), $s['button_text_color'], __( 'Text on the Accept button. Choose a dark color if your accent color is light.', 'crumbsignal' ) ); ?>
 					</div>
 					<div class="crumbsignal-contrast" id="crumbsignal-contrast-report" role="status">
 						<p data-contrast="accept"></p>
@@ -181,7 +182,7 @@ final class CrumbSignal_Admin {
 		<section class="crumbsignal-preview" aria-hidden="true">
 			<div class="crumbsignal-preview__label"><?php esc_html_e( 'Live preview', 'crumbsignal' ); ?></div>
 			<div class="crumbsignal-preview__stage">
-				<div id="crumbsignal-preview-widget" class="crumbsignal crumbsignal--<?php echo esc_attr( $s['position'] ); ?>" style="--crumbsignal-accent:<?php echo esc_attr( $s['accent_color'] ); ?>;--crumbsignal-bg:<?php echo esc_attr( $s['background_color'] ); ?>;--crumbsignal-text:<?php echo esc_attr( $s['text_color'] ); ?>">
+				<div id="crumbsignal-preview-widget" class="crumbsignal crumbsignal--<?php echo esc_attr( $s['position'] ); ?>" style="--crumbsignal-accent:<?php echo esc_attr( $s['accent_color'] ); ?>;--crumbsignal-bg:<?php echo esc_attr( $s['background_color'] ); ?>;--crumbsignal-text:<?php echo esc_attr( $s['text_color'] ); ?>;--crumbsignal-accent-text:<?php echo esc_attr( $s['button_text_color'] ); ?>">
 					<div class="crumbsignal__banner">
 						<div class="crumbsignal__copy">
 							<h2 id="crumbsignal-preview-heading"><?php echo esc_html( $s['heading'] ); ?></h2>
