@@ -19,9 +19,11 @@ window.CrumbSignal.acceptAll();
 window.CrumbSignal.rejectOptional();
 ```
 
+Without the floating button, reopen the preferences from your own markup: the `[crumbsignal_preferences label="..."]` shortcode, any link whose URL ends in `#crumbsignal-preferences` (including `/#crumbsignal-preferences` and full URLs, which menus and page builders often generate), visiting a URL that ends in it, or any element with the class `crumbsignal-open-preferences` (handled by one delegated click listener in `assets/js/crumbsignal.js`). None of these print or do anything when the banner is switched off.
+
 The document also emits `crumbsignal:change` with the saved consent payload in `event.detail`.
 
-## GuardRelay gate (1.1.0)
+## GuardRelay gate
 
 GuardRelay is a separate plugin that can say whether a visitor is a bot. The contract is small and generic:
 
@@ -116,6 +118,10 @@ attacker-facing surface. `phpcs.xml.dist` is tuned to this codebase's actual sty
 (terse docblocks, compact single-line admin templates) rather than the full stock
 WordPress ruleset, so a clean run is meant to stay meaningful, not aspirational.
 
+## WordPress.org directory assets
+
+`.wordpress-org/` holds the plugin directory artwork: `screenshot-1.png` to `screenshot-6.png` (numbered to match the readme's Screenshots list), `icon-128x128.png`, `icon-256x256.png`, `banner-772x250.png` and `banner-1544x500.png`. These are not part of the plugin ZIP; they go in the SVN repository's top-level `/assets` folder (a sibling of `/trunk`) when you publish. Retake the screenshots if the settings screen or banner changes visibly.
+
 ## Release checklist
 
 - Test with a clean, supported WordPress installation.
@@ -128,7 +134,7 @@ WordPress ruleset, so a clean run is meant to stay meaningful, not aspirational.
 - Verify the Design tab's live preview and contrast warnings match the real frontend banner (colors, labels, and position), since the preview reuses the same CSS but is a separate DOM tree.
 - If testing against a site with a nonce-based CSP, hook `wp_script_attributes` to add the nonce and confirm the bootstrap, Google tags, and gated scripts all execute after consent.
 - Run `phpcs --standard=phpcs.xml.dist` and resolve findings before Plugin Check.
-- Generate `languages/crumbsignal.pot` with `wp i18n make-pot . languages/crumbsignal.pot`.
+- Regenerate `languages/crumbsignal.pot` after any string change: `wp i18n make-pot . languages/crumbsignal.pot`, or without WP-CLI, `xgettext --language=PHP --from-code=UTF-8 --add-comments=translators --keyword=__:1 --keyword=_e:1 --keyword=esc_html__:1 --keyword=esc_html_e:1 --keyword=esc_attr__:1 --keyword=esc_attr_e:1 -o languages/crumbsignal.pot crumbsignal.php includes/*.php uninstall.php` (then tidy the header).
 - Run WordPress Plugin Check before submitting to WordPress.org.
 - Update `Tested up to` only after completing the matching WordPress test.
 - Distribute updates through WordPress.org after approval; do not add an unauthenticated custom updater.

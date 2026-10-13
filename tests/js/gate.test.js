@@ -127,6 +127,7 @@ function page({ config = {}, consent = null, privacySignal = false, scripts = []
   env.window = window;
   env.root = root;
   env.banner = banner;
+  env.modal = modal;
   env.documentElement = documentElement;
   env.verdict = (verdict) => {
     window.GuardRelay = Object.assign(window.GuardRelay || {}, { verdict, bot: verdict.allow === false, pending: false });
@@ -374,6 +375,57 @@ async function test(name, fn) {
     await tick();
     assert.deepStrictEqual(p.activated, []);
     assert.strictEqual(p.window.CrumbSignal, undefined, 'no API either: nothing was set up');
+  });
+
+  // ---- A link the site owner adds (e.g. in the footer) reopens the preferences ---------------------
+
+  const clickOn = (p, matches) => {
+    let prevented = false;
+    const target = { closest: (selector) => (matches(selector) ? {} : null) };
+    p.docListeners.click.forEach((fn) => fn({ target, preventDefault() { prevented = true; } }));
+    return prevented;
+  };
+
+  await test('a footer link to #crumbsignal-preferences (or the helper class) opens the preferences', async () => {
+    const p = page({ consent: consentedAll });
+    p.run();
+    assert.strictEqual(p.banner.hidden, true, 'banner is out of the way once a choice is stored');
+
+    p.banner.hidden = false; // proves the click is what hides it again (openPreferences hides the banner)
+    const prevented = clickOn(p, (selector) => selector.includes('#crumbsignal-preferences'));
+    assert.strictEqual(prevented, true, 'the link does not also jump the page');
+    assert.strictEqual(p.banner.hidden, true, 'preferences were opened');
+  });
+
+  await test('the click handler matches links by their ending, so "/#..." and full URLs work', async () => {
+    const p = page({ consent: consentedAll });
+    p.run();
+    let selector = '';
+    p.docListeners.click.forEach((fn) => fn({ target: { closest: (s) => { selector = s; return null; } }, preventDefault() {} }));
+    assert.ok(selector.includes('a[href$="#crumbsignal-preferences"]'), selector);
+  });
+
+  await test('arriving on a URL with #crumbsignal-preferences opens the preferences', async () => {
+    const p = page({ consent: consentedAll });
+    p.window.location.hash = '#crumbsignal-preferences';
+    p.modal.hidden = true;
+    p.run();
+    assert.strictEqual(p.modal.hidden, false, 'preferences were opened on load');
+
+    const other = page({ consent: consentedAll });
+    other.window.location.hash = '#something-else';
+    other.modal.hidden = true;
+    other.run();
+    assert.strictEqual(other.modal.hidden, true, 'a different hash does nothing');
+  });
+
+  await test('clicks on anything else are left alone', async () => {
+    const p = page({ consent: consentedAll });
+    p.run();
+    p.banner.hidden = false;
+    const prevented = clickOn(p, () => false);
+    assert.strictEqual(prevented, false);
+    assert.strictEqual(p.banner.hidden, false, 'nothing opened');
   });
 
   console.log(`\n${passed} passed, ${failed} failed`);

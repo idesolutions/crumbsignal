@@ -95,6 +95,10 @@ final class CrumbSignal_Admin {
 						<?php self::url( 'policy_url', __( 'Cookie or privacy policy URL', 'crumbsignal' ), $s['policy_url'] ); ?>
 					</div>
 					<?php self::toggle( 'show_revisit', __( 'Show the floating privacy choices button', 'crumbsignal' ), $s['show_revisit'] ); ?>
+					<div class="crumbsignal-grid">
+						<?php self::select( 'revisit_position', __( 'Privacy choices button side', 'crumbsignal' ), $s['revisit_position'], array( 'left' => __( 'Bottom left', 'crumbsignal' ), 'right' => __( 'Bottom right', 'crumbsignal' ) ) ); ?>
+					</div>
+					<p class="description crumbsignal-help"><?php echo wp_kses( __( 'Prefer your own link instead? Turn the button off, then add <code>[crumbsignal_preferences]</code> to a page or widget, or point any menu item or button at <code>#crumbsignal-preferences</code> (or give it the class <code>crumbsignal-open-preferences</code>). Clicking it reopens the preferences popup.', 'crumbsignal' ), array( 'code' => array() ) ); ?></p>
 					<?php self::toggle( 'respect_gpc', __( 'Honor Global Privacy Control as a rejection of optional cookies', 'crumbsignal' ), $s['respect_gpc'] ); ?>
 					<?php self::toggle( 'respect_dnt', __( 'Honor legacy Do Not Track as a rejection of optional cookies', 'crumbsignal' ), $s['respect_dnt'] ); ?>
 				</section>

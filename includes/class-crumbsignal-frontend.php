@@ -237,12 +237,29 @@ JS;
 		?><noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<?php echo esc_attr( self::$settings['gtm_id'] ); ?>" height="0" width="0" style="display:none;visibility:hidden" title="<?php esc_attr_e( 'Google Tag Manager', 'crumbsignal' ); ?>"></iframe></noscript><?php
 	}
 
+	/**
+	 * `[crumbsignal_preferences label="Cookie Preferences"]`: a link that reopens the preferences popup, for a
+	 * footer or menu when the floating button is switched off. Prints nothing if there is no banner to open.
+	 *
+	 * @param array<string, string>|string $atts Shortcode attributes.
+	 * @return string
+	 */
+	public static function preferences_link( $atts ) {
+		if ( empty( self::$settings['enabled'] ) || ! empty( self::$settings['no_banner'] ) ) {
+			return '';
+		}
+
+		$atts = shortcode_atts( array( 'label' => __( 'Cookie Preferences', 'crumbsignal' ) ), $atts, 'crumbsignal_preferences' );
+
+		return '<a href="#crumbsignal-preferences" class="crumbsignal-open-preferences">' . esc_html( $atts['label'] ) . '</a>';
+	}
+
 	/** @return void */
 	public static function banner() {
 		$s             = self::$settings;
 		$revisit_label = __( 'Open cookie preferences', 'crumbsignal' );
 		?>
-		<div id="crumbsignal-root" class="crumbsignal crumbsignal--<?php echo esc_attr( $s['position'] ); ?>" hidden>
+		<div id="crumbsignal-root" class="crumbsignal crumbsignal--<?php echo esc_attr( $s['position'] ); ?><?php echo 'right' === $s['revisit_position'] ? ' crumbsignal--revisit-right' : ''; ?>" hidden>
 			<section class="crumbsignal__banner" role="dialog" aria-modal="false" aria-live="polite" aria-labelledby="crumbsignal-heading" aria-describedby="crumbsignal-description">
 				<div class="crumbsignal__copy"><h2 id="crumbsignal-heading"><?php echo esc_html( $s['heading'] ); ?></h2><p id="crumbsignal-description"><?php echo esc_html( $s['description'] ); ?> <?php if ( $s['policy_url'] ) : ?><a href="<?php echo esc_url( $s['policy_url'] ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'Learn more', 'crumbsignal' ); ?></a><?php endif; ?></p></div>
 				<div class="crumbsignal__actions"><button type="button" class="crumbsignal__button crumbsignal__button--secondary" data-crumbsignal-action="customize"><?php echo esc_html( $s['customize_label'] ); ?></button><button type="button" class="crumbsignal__button crumbsignal__button--reject" data-crumbsignal-action="reject"><?php echo esc_html( $s['reject_label'] ); ?></button><button type="button" class="crumbsignal__button crumbsignal__button--primary" data-crumbsignal-action="accept"><?php echo esc_html( $s['accept_label'] ); ?></button></div>

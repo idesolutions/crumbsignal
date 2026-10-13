@@ -274,6 +274,15 @@
     });
     modal.addEventListener('keydown', trapFocus);
 
+    // Any link or button the site owner adds (e.g. in the footer) can reopen the preferences. Links are matched by
+    // their ending so "/#crumbsignal-preferences" and full URLs, which menus and page builders often produce, work too.
+    document.addEventListener('click', function (event) {
+      var trigger = event.target && event.target.closest && event.target.closest('a[href$="#crumbsignal-preferences"], .crumbsignal-open-preferences');
+      if (!trigger) return;
+      event.preventDefault();
+      openPreferences();
+    });
+
     if (state.consent || state.privacySignal) {
       banner.hidden = true;
       if (revisit) revisit.hidden = false;
@@ -291,6 +300,9 @@
       rejectOptional: function () { persist(categories(false), 'api'); },
       isBot: function () { return !!state.bot; }
     };
+
+    // Arriving on a URL that ends in #crumbsignal-preferences (e.g. from a link on another page) opens them at once.
+    if (window.location && window.location.hash === '#crumbsignal-preferences') openPreferences();
 
     if (state.config.gate) {
       visitorGate().then(function (bot) {

@@ -29,6 +29,7 @@ final class CrumbSignal_Settings {
 			'background_color'       => '#ffffff',
 			'text_color'             => '#17151f',
 			'show_revisit'           => 1,
+			'revisit_position'       => 'left',
 			'heading'                => __( 'Your privacy choices', 'crumbsignal' ),
 			'description'            => __( 'We use cookies to improve your experience, understand site usage, and support our marketing. You can accept all cookies, reject optional cookies, or choose your preferences.', 'crumbsignal' ),
 			'accept_label'           => __( 'Accept All', 'crumbsignal' ),
@@ -85,6 +86,7 @@ final class CrumbSignal_Settings {
 		$output['consent_duration'] = max( 1, min( 730, absint( $input['consent_duration'] ?? 180 ) ) );
 		$output['consent_version']  = max( 1, absint( $input['consent_version'] ?? 1 ) );
 		$output['position']         = in_array( $input['position'] ?? '', array( 'bottom', 'bottom-left', 'bottom-right' ), true ) ? $input['position'] : 'bottom';
+		$output['revisit_position'] = in_array( $input['revisit_position'] ?? '', array( 'left', 'right' ), true ) ? $input['revisit_position'] : 'left';
 
 		foreach ( array( 'accent_color', 'background_color', 'text_color' ) as $color ) {
 			$output[ $color ] = sanitize_hex_color( $input[ $color ] ?? '' ) ?: $defaults[ $color ];

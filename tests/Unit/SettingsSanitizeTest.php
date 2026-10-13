@@ -58,6 +58,13 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertSame( 'bottom-left', CrumbSignal_Settings::sanitize( array( 'position' => 'bottom-left' ) )['position'] );
 	}
 
+	public function test_revisit_position_defaults_to_left_and_only_accepts_left_or_right(): void {
+		$this->assertSame( 'left', CrumbSignal_Settings::defaults()['revisit_position'] );
+		$this->assertSame( 'left', CrumbSignal_Settings::sanitize( array() )['revisit_position'] );
+		$this->assertSame( 'right', CrumbSignal_Settings::sanitize( array( 'revisit_position' => 'right' ) )['revisit_position'] );
+		$this->assertSame( 'left', CrumbSignal_Settings::sanitize( array( 'revisit_position' => 'top' ) )['revisit_position'] );
+	}
+
 	public function test_invalid_hex_color_falls_back_to_default(): void {
 		$output = CrumbSignal_Settings::sanitize( array( 'accent_color' => 'not-a-color' ) );
 
