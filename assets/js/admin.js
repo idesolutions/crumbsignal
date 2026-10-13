@@ -109,7 +109,17 @@
     var tabs = document.querySelectorAll('.crumbsignal-tabs [role="tab"]');
     var panels = document.querySelectorAll('.crumbsignal-panel');
 
-    function activate(tab) {
+    // Saving posts to options.php and redirects back, which reloads this screen; remember the tab so the visitor
+    // returns to it instead of General. Session-only, and harmless if the browser blocks storage.
+    var TAB_KEY = 'crumbsignal-admin-tab';
+    function rememberTab(slug) {
+      try { window.sessionStorage.setItem(TAB_KEY, slug); } catch (e) { /* storage unavailable */ }
+    }
+    function rememberedTab() {
+      try { return window.sessionStorage.getItem(TAB_KEY); } catch (e) { return null; }
+    }
+
+    function activate(tab, moveFocus) {
       tabs.forEach(function (item) {
         var selected = item === tab;
         item.classList.toggle('is-active', selected);
@@ -117,7 +127,8 @@
         item.tabIndex = selected ? 0 : -1;
       });
       panels.forEach(function (panel) { panel.classList.toggle('is-active', panel.dataset.panel === tab.dataset.tab); });
-      tab.focus();
+      rememberTab(tab.dataset.tab);
+      if (moveFocus !== false) tab.focus();
     }
 
     tabs.forEach(function (tab, index) {
@@ -129,6 +140,13 @@
         activate(tabs[(index + target + tabs.length) % tabs.length]);
       });
     });
+
+    var savedTab = rememberedTab();
+    if (savedTab) {
+      tabs.forEach(function (tab) {
+        if (tab.dataset.tab === savedTab && !tab.classList.contains('is-active')) activate(tab, false);
+      });
+    }
 
     var list = document.getElementById('crumbsignal-script-list');
     var add = document.getElementById('crumbsignal-add-script');
