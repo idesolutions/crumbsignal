@@ -136,6 +136,7 @@ WordPress ruleset, so a clean run is meant to stay meaningful, not aspirational.
 - Run `phpcs --standard=phpcs.xml.dist` and resolve findings before Plugin Check.
 - Regenerate `languages/crumbsignal.pot` after any string change: `wp i18n make-pot . languages/crumbsignal.pot`, or without WP-CLI, `xgettext --language=PHP --from-code=UTF-8 --add-comments=translators --keyword=__:1 --keyword=_e:1 --keyword=esc_html__:1 --keyword=esc_html_e:1 --keyword=esc_attr__:1 --keyword=esc_attr_e:1 -o languages/crumbsignal.pot crumbsignal.php includes/*.php uninstall.php` (then tidy the header).
 - Run WordPress Plugin Check before submitting to WordPress.org.
-- Update `Tested up to` only after completing the matching WordPress test.
+- Update `Tested up to` only after completing the matching WordPress test, and only in `readme.txt` (WordPress.org rejects it in the plugin header).
+- Keep the plugin name (header and readme title) as plain `CrumbSignal`: WordPress.org derives the slug from the name, and every `__()` text domain must equal that slug (`crumbsignal`). A longer name such as "CrumbSignal – Cookie Consent" would produce a different slug and fail the automated scan.
 - Distribute updates through WordPress.org after approval; do not add an unauthenticated custom updater.
 - Generate and retain a SHA-256 checksum for every release ZIP.

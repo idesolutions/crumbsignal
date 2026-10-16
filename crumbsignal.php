@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: CrumbSignal – Cookie Consent & Consent Mode
+Plugin Name: CrumbSignal
 Plugin URI: https://idesolutions.io/products/crumbsignal/
 Description: Privacy-first cookie consent, script controls, Google Consent Mode v2, and data layer signals for WordPress.
 Version: 1.0.0
@@ -9,7 +9,6 @@ Author URI: https://idesolutions.io/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 6.4
-Tested up to: 7.1
 Requires PHP: 8.0
 Text Domain: crumbsignal
 Domain Path: /languages

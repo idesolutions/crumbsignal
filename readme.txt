@@ -1,4 +1,4 @@
-=== CrumbSignal – Cookie Consent & Consent Mode ===
+=== CrumbSignal ===
 Contributors: idesolutions
 Tags: cookie consent, consent mode, google tag manager, analytics, privacy
 Requires at least: 6.4
