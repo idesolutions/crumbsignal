@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Clear consent. Clean signals. Add a customizable cookie banner, control optional scripts, and connect consent choices to Google Consent Mode v2.
+Clear consent. Clean signals. Add a customizable cookie banner, hold back optional scripts until consent, and connect consent choices to Google Consent Mode v2.
 
 == Description ==
 CrumbSignal is a self-hosted WordPress consent manager. It stores consent in a first-party cookie, keeps configured scripts inactive until the matching category is accepted, and communicates visitor choices to Google tags.
@@ -21,7 +21,7 @@ CrumbSignal is a self-hosted WordPress consent manager. It stores consent in a f
 * Google Tag Manager, GA4, and Google Ads IDs
 * Basic and advanced Google consent configurations
 * dataLayer events for custom GTM triggers
-* Category-based external and inline script controls
+* Category-based script gating with a simple markup attribute (no code is entered or stored in the plugin)
 * First-party cookie cleanup rules when consent is withdrawn
 * Global Privacy Control support
 * Works with GuardRelay (separate plugin): a visitor GuardRelay identifies as a bot gets no banner, no analytics tags and no consent cookie
@@ -44,13 +44,13 @@ CrumbSignal itself sends no data anywhere and has no account, dashboard or remot
 * Google Terms of Service: https://policies.google.com/terms
 * Google Privacy Policy: https://policies.google.com/privacy
 
-Any other third-party script you add in the Script Manager loads from the address you enter, and only after the visitor accepts its category. You are responsible for disclosing those services to your visitors. CrumbSignal makes no requests to GuardRelay; the integration only reads a verdict that the separate GuardRelay plugin publishes in the visitor's browser.
+Any other third-party script you mark for gating yourself loads from the address you give it, and only after the visitor accepts its category. You are responsible for disclosing those services to your visitors. CrumbSignal makes no requests to GuardRelay; the integration only reads a verdict that the separate GuardRelay plugin publishes in the visitor's browser.
 
 == Installation ==
 1. Upload the `crumbsignal` folder to `/wp-content/plugins/` or install the ZIP from Plugins > Add New > Upload Plugin.
 2. Activate CrumbSignal.
 3. Open Settings > CrumbSignal.
-4. Configure banner copy, Google tags, and any scripts that require consent.
+4. Configure banner copy and Google tags, and mark any other scripts that require consent with a category attribute.
 5. Test Accept, Reject, and Customize in a private browser window before publishing.
 
 == Frequently Asked Questions ==
@@ -64,7 +64,7 @@ In Advanced Consent Mode, the container may load with denied consent defaults. I
 `crumbsignal_ready` fires after the default or stored consent state is established. `crumbsignal_consent_update` fires when the visitor saves a choice. Both include consent booleans for analytics, marketing, and preferences.
 
 = Can I control scripts added outside CrumbSignal? =
-Yes. Change the script type to `text/plain`, add `data-crumbsignal-category="analytics"` (or preferences/marketing), and move an external URL from `src` to `data-src`.
+Yes. CrumbSignal does not store or print scripts for you; it gates the ones you add yourself. Change the script type to `text/plain`, add `data-crumbsignal-category="analytics"` (or preferences/marketing), and move an external URL from `src` to `data-src`. The Script Gating tab also lets you list the cookie names those scripts set, so they are cleared when a visitor withdraws consent.
 
 = Can I use a footer link instead of the floating button? =
 Yes. Turn off "Show the floating privacy choices button" in Settings > CrumbSignal > General, then add the `[crumbsignal_preferences]` shortcode (optionally `label="Your Privacy Choices"`) to a footer widget or page. You can also point any menu item at a URL ending in `#crumbsignal-preferences` (for example `#crumbsignal-preferences` or `https://example.com/#crumbsignal-preferences`), or give any link or button the class `crumbsignal-open-preferences`. Clicking it reopens the preferences popup.
@@ -78,8 +78,8 @@ CrumbSignal reads and writes consent entirely in the visitor's browser: a first-
 2. The granular cookie preferences panel, opened from Customize or the revisit button.
 3. The CrumbSignal settings screen: General tab (consent duration, banner position, GPC/DNT).
 4. The Google & GTM tab: GTM/GA4/Ads IDs and Basic vs. Advanced Consent Mode.
-5. The Script Manager tab: adding a category-gated third-party script.
-6. The Design tab: accent/background/text colors and custom CSS.
+5. The Script Gating tab: the markup that holds a script until consent, and the cookies to clear on withdrawal.
+6. The Design tab: accent, background, text and button colors with a contrast check.
 
 == Changelog ==
 

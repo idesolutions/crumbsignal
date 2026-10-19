@@ -68,6 +68,8 @@ Tests: `node tests/js/gate.test.js` (browser logic against a fake page) and `ven
 
 ## Script gating markup
 
+CrumbSignal intentionally has no field that accepts JavaScript, script URLs, or CSS (WordPress.org plugin guidelines). Scripts are gated by markup the site owner places in their theme or builder; the plugin only stores validated IDs, colors, labels, and cookie names.
+
 Inline script:
 
 ```html
@@ -98,8 +100,7 @@ runtime uses the merged settings (`CrumbSignal_Frontend::init()`). It only affec
 visitors see and never touches the stored `crumbsignal_settings` option or what the
 wp-admin settings screen displays — so it's safe to use from a client-specific
 mu-plugin or theme to override behavior per environment (e.g. a different policy URL on
-staging, or programmatically adding an entry to `$settings['scripts']`) without that
-override ever getting silently re-saved as if an admin had entered it by hand.
+staging) without that override ever getting silently re-saved as if an admin had entered it by hand.
 
 ## Local tooling
 

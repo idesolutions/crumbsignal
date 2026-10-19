@@ -46,10 +46,10 @@ require_once CRUMBSIGNAL_PATH . 'includes/integration-guardrelay.php';
  */
 function crumbsignal_get_settings() {
 	$saved = get_option( 'crumbsignal_settings', array() );
-	$saved = wp_parse_args( is_array( $saved ) ? $saved : array(), CrumbSignal_Settings::defaults() );
-	$saved['scripts'] = is_array( $saved['scripts'] ) ? $saved['scripts'] : array();
+	$defaults = CrumbSignal_Settings::defaults();
 
-	return $saved;
+	// Only known keys survive: settings saved by earlier builds (such as raw scripts or custom CSS) are ignored.
+	return array_intersect_key( wp_parse_args( is_array( $saved ) ? $saved : array(), $defaults ), $defaults );
 }
 
 /**

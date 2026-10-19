@@ -147,21 +147,6 @@
         if (tab.dataset.tab === savedTab && !tab.classList.contains('is-active')) activate(tab, false);
       });
     }
-
-    var list = document.getElementById('crumbsignal-script-list');
-    var add = document.getElementById('crumbsignal-add-script');
-    var template = document.getElementById('crumbsignal-script-template');
-    if (add && list && template) {
-      add.addEventListener('click', function () {
-        var index = Date.now().toString();
-        list.insertAdjacentHTML('beforeend', template.innerHTML.replace(/__INDEX__/g, index));
-      });
-      list.addEventListener('click', function (event) {
-        if (event.target.classList.contains('crumbsignal-remove-script')) {
-          event.target.closest('.crumbsignal-script-row').remove();
-        }
-      });
-    }
   });
 }());
 

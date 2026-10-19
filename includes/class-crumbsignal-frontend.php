@@ -32,8 +32,6 @@ final class CrumbSignal_Frontend {
 
 		add_action( 'wp_head', array( __CLASS__, 'consent_bootstrap' ), -9999 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'assets' ) );
-		add_action( 'wp_head', array( __CLASS__, 'head_scripts' ), 20 );
-		add_action( 'wp_footer', array( __CLASS__, 'body_scripts' ), 5 );
 		// With the banner turned off nothing is printed for visitors to see: the script only releases scripts.
 		if ( empty( self::$settings['no_banner'] ) ) {
 			add_action( 'wp_footer', array( __CLASS__, 'banner' ), 1000 );
@@ -154,11 +152,11 @@ JS;
 			'analytics'   => array( '_ga', '_ga_*', '_gid', '_gat', '_gat_*' ),
 			'marketing'   => array( '_gcl_au', '_gcl_aw_*', '_gcl_dc_*', '_fbp' ),
 		);
-		foreach ( self::$settings['scripts'] as $script ) {
-			if ( ! is_array( $script ) || empty( $script['cookies'] ) || empty( $script['category'] ) || ! isset( $cleanup_rules[ $script['category'] ] ) ) {
-				continue;
+		foreach ( array( 'preferences', 'analytics', 'marketing' ) as $category ) {
+			$names = trim( (string) ( self::$settings[ 'cookies_' . $category ] ?? '' ) );
+			if ( '' !== $names ) {
+				$cleanup_rules[ $category ] = array_merge( $cleanup_rules[ $category ], array_map( 'trim', explode( ',', $names ) ) );
 			}
-			$cleanup_rules[ $script['category'] ] = array_merge( $cleanup_rules[ $script['category'] ], array_map( 'trim', explode( ',', $script['cookies'] ) ) );
 		}
 		foreach ( $cleanup_rules as $category => $rules ) {
 			$cleanup_rules[ $category ] = array_values( array_unique( array_filter( $rules ) ) );
@@ -189,45 +187,13 @@ JS;
 		}
 
 		$custom = sprintf(
-			'#crumbsignal-root{--crumbsignal-accent:%1$s;--crumbsignal-bg:%2$s;--crumbsignal-text:%3$s;--crumbsignal-accent-text:%4$s;}%5$s',
+			'#crumbsignal-root{--crumbsignal-accent:%1$s;--crumbsignal-bg:%2$s;--crumbsignal-text:%3$s;--crumbsignal-accent-text:%4$s;}',
 			sanitize_hex_color( self::$settings['accent_color'] ) ?: '#6d4aff',
 			sanitize_hex_color( self::$settings['background_color'] ) ?: '#ffffff',
 			sanitize_hex_color( self::$settings['text_color'] ) ?: '#17151f',
-			sanitize_hex_color( self::$settings['button_text_color'] ?? '' ) ?: '#ffffff',
-			self::$settings['custom_css']
+			sanitize_hex_color( self::$settings['button_text_color'] ?? '' ) ?: '#ffffff'
 		);
 		wp_add_inline_style( 'crumbsignal', $custom );
-	}
-
-	/** @return void */
-	public static function head_scripts() { self::controlled_scripts( 'head' ); }
-	/** @return void */
-	public static function body_scripts() { self::controlled_scripts( 'body' ); }
-
-	/** @param string $location Placement. @return void */
-	private static function controlled_scripts( $location ) {
-		foreach ( self::$settings['scripts'] as $index => $script ) {
-			if ( ! is_array( $script ) || empty( $script['enabled'] ) || ( $script['location'] ?? '' ) !== $location ) {
-				continue;
-			}
-			$category = $script['category'] ?? '';
-			if ( ! in_array( $category, array( 'preferences', 'analytics', 'marketing' ), true ) ) {
-				continue;
-			}
-			$attributes = array(
-				'type'                      => 'text/plain',
-				'data-crumbsignal-category' => $category,
-				'data-crumbsignal-id'       => 'managed-' . absint( $index ),
-			);
-			if ( ! empty( $script['source'] ) ) {
-				$external_attributes             = $attributes;
-				$external_attributes['data-src'] = esc_url( $script['source'], array( 'http', 'https' ) );
-				wp_print_script_tag( $external_attributes );
-			}
-			if ( ! empty( $script['inline'] ) ) {
-				wp_print_inline_script_tag( $script['inline'], $attributes );
-			}
-		}
 	}
 
 	/** @return void */

@@ -78,7 +78,7 @@ final class CrumbSignal_Admin {
 					self::tab( 'general', __( 'General', 'crumbsignal' ), true );
 					self::tab( 'content', __( 'Content', 'crumbsignal' ) );
 					self::tab( 'google', __( 'Google & GTM', 'crumbsignal' ) );
-					self::tab( 'scripts', __( 'Script Manager', 'crumbsignal' ) );
+					self::tab( 'gating', __( 'Script Gating', 'crumbsignal' ) );
 					self::tab( 'design', __( 'Design', 'crumbsignal' ) );
 					?>
 				</nav>
@@ -134,15 +134,17 @@ final class CrumbSignal_Admin {
 					<div class="notice notice-info inline"><p><?php esc_html_e( 'CrumbSignal pushes crumbsignal_ready and crumbsignal_consent_update events to dataLayer. The event includes consent_analytics, consent_marketing, and consent_preferences booleans.', 'crumbsignal' ); ?></p></div>
 				</section>
 
-				<section class="crumbsignal-panel" id="crumbsignal-panel-scripts" data-panel="scripts" role="tabpanel" aria-labelledby="crumbsignal-tab-scripts">
-					<h2><?php esc_html_e( 'Script Manager', 'crumbsignal' ); ?></h2>
-					<p><?php esc_html_e( 'Add third-party scripts here so they remain inert until the visitor accepts their category.', 'crumbsignal' ); ?></p>
-					<div id="crumbsignal-script-list">
-						<?php foreach ( $s['scripts'] as $i => $script ) : self::script_row( $i, $script ); endforeach; ?>
-					</div>
-					<button type="button" class="button" id="crumbsignal-add-script"><?php esc_html_e( 'Add script', 'crumbsignal' ); ?></button>
-						<template id="crumbsignal-script-template"><?php self::script_row( '__INDEX__', array( 'name' => '', 'category' => 'analytics', 'location' => 'head', 'source' => '', 'inline' => '', 'cookies' => '', 'enabled' => 1 ) ); ?></template>
-					<div class="crumbsignal-code-help"><h3><?php esc_html_e( 'Gate scripts added elsewhere', 'crumbsignal' ); ?></h3><code>&lt;script type="text/plain" data-crumbsignal-category="analytics" data-src="https://example.com/script.js"&gt;&lt;/script&gt;</code></div>
+				<section class="crumbsignal-panel" id="crumbsignal-panel-gating" data-panel="gating" role="tabpanel" aria-labelledby="crumbsignal-tab-gating">
+					<h2><?php esc_html_e( 'Script gating', 'crumbsignal' ); ?></h2>
+					<p><?php esc_html_e( 'CrumbSignal holds back any script you mark with a consent category until the visitor accepts that category. Add the markup below to scripts in your theme, page builder, or another plugin; CrumbSignal never stores or prints scripts for you.', 'crumbsignal' ); ?></p>
+					<div class="crumbsignal-code-help"><h3><?php esc_html_e( 'External script', 'crumbsignal' ); ?></h3><code>&lt;script type="text/plain" data-crumbsignal-category="analytics" data-src="https://example.com/script.js"&gt;&lt;/script&gt;</code></div>
+					<div class="crumbsignal-code-help"><h3><?php esc_html_e( 'Inline script', 'crumbsignal' ); ?></h3><code>&lt;script type="text/plain" data-crumbsignal-category="marketing"&gt;/* runs after marketing consent */&lt;/script&gt;</code></div>
+					<p class="description"><?php esc_html_e( 'Supported categories: preferences, analytics, and marketing.', 'crumbsignal' ); ?></p>
+					<h3><?php esc_html_e( 'Cookies to remove when consent is withdrawn', 'crumbsignal' ); ?></h3>
+					<p class="description"><?php esc_html_e( 'List the first-party cookie names your gated scripts set. They are deleted when a visitor withdraws that category. Comma-separated; use a trailing * to match a prefix. Common Google cookies (_ga, _gid, _gcl_au, _fbp and similar) are always cleaned up. Third-party and HttpOnly cookies cannot be removed by browser JavaScript.', 'crumbsignal' ); ?></p>
+					<?php self::text( 'cookies_preferences', __( 'Preferences cookies', 'crumbsignal' ), $s['cookies_preferences'], 'cookie_name, service_prefix_*' ); ?>
+					<?php self::text( 'cookies_analytics', __( 'Analytics cookies', 'crumbsignal' ), $s['cookies_analytics'], '_hjSession*, _clck' ); ?>
+					<?php self::text( 'cookies_marketing', __( 'Marketing cookies', 'crumbsignal' ), $s['cookies_marketing'], '_uetsid, li_fat_id' ); ?>
 				</section>
 
 				<section class="crumbsignal-panel" id="crumbsignal-panel-design" data-panel="design" role="tabpanel" aria-labelledby="crumbsignal-tab-design">
@@ -157,7 +159,6 @@ final class CrumbSignal_Admin {
 						<p data-contrast="accept"></p>
 						<p data-contrast="reject"></p>
 					</div>
-					<?php self::textarea( 'custom_css', __( 'Custom CSS', 'crumbsignal' ), $s['custom_css'], 10 ); ?>
 				</section>
 
 				<?php submit_button( __( 'Save CrumbSignal Settings', 'crumbsignal' ) ); ?>
@@ -237,19 +238,5 @@ final class CrumbSignal_Admin {
 	}
 	private static function toggle( $key, $label, $checked ) { ?>
 		<label class="crumbsignal-toggle"><input type="checkbox" name="<?php echo esc_attr( self::field_name( $key ) ); ?>" value="1" <?php checked( $checked ); ?>><span aria-hidden="true"></span><b><?php echo esc_html( $label ); ?></b></label><?php
-	}
-	private static function script_row( $index, $script ) { ?>
-		<div class="crumbsignal-script-row">
-			<div class="crumbsignal-script-row__head"><strong><?php esc_html_e( 'Controlled script', 'crumbsignal' ); ?></strong><button type="button" class="button-link-delete crumbsignal-remove-script"><?php esc_html_e( 'Remove', 'crumbsignal' ); ?></button></div>
-			<div class="crumbsignal-grid">
-				<label class="crumbsignal-field"><span><?php esc_html_e( 'Name', 'crumbsignal' ); ?></span><input type="text" name="crumbsignal_settings[scripts][<?php echo esc_attr( $index ); ?>][name]" value="<?php echo esc_attr( $script['name'] ); ?>"></label>
-				<label class="crumbsignal-field"><span><?php esc_html_e( 'Category', 'crumbsignal' ); ?></span><select name="crumbsignal_settings[scripts][<?php echo esc_attr( $index ); ?>][category]"><option value="preferences" <?php selected( $script['category'], 'preferences' ); ?>><?php esc_html_e( 'Preferences', 'crumbsignal' ); ?></option><option value="analytics" <?php selected( $script['category'], 'analytics' ); ?>><?php esc_html_e( 'Analytics', 'crumbsignal' ); ?></option><option value="marketing" <?php selected( $script['category'], 'marketing' ); ?>><?php esc_html_e( 'Marketing', 'crumbsignal' ); ?></option></select></label>
-				<label class="crumbsignal-field"><span><?php esc_html_e( 'Location', 'crumbsignal' ); ?></span><select name="crumbsignal_settings[scripts][<?php echo esc_attr( $index ); ?>][location]"><option value="head" <?php selected( $script['location'], 'head' ); ?>><?php esc_html_e( 'Head', 'crumbsignal' ); ?></option><option value="body" <?php selected( $script['location'], 'body' ); ?>><?php esc_html_e( 'Footer', 'crumbsignal' ); ?></option></select></label>
-				<label class="crumbsignal-toggle crumbsignal-toggle--compact"><input type="checkbox" name="crumbsignal_settings[scripts][<?php echo esc_attr( $index ); ?>][enabled]" value="1" <?php checked( $script['enabled'] ); ?>><span aria-hidden="true"></span><b><?php esc_html_e( 'Enabled', 'crumbsignal' ); ?></b></label>
-			</div>
-			<label class="crumbsignal-field crumbsignal-field--wide"><span><?php esc_html_e( 'External script URL', 'crumbsignal' ); ?></span><input type="url" name="crumbsignal_settings[scripts][<?php echo esc_attr( $index ); ?>][source]" value="<?php echo esc_attr( $script['source'] ); ?>" placeholder="https://"></label>
-			<label class="crumbsignal-field crumbsignal-field--wide"><span><?php esc_html_e( 'Inline JavaScript (without script tags)', 'crumbsignal' ); ?></span><textarea rows="4" name="crumbsignal_settings[scripts][<?php echo esc_attr( $index ); ?>][inline]"><?php echo esc_textarea( $script['inline'] ); ?></textarea></label>
-			<label class="crumbsignal-field crumbsignal-field--wide"><span><?php esc_html_e( 'First-party cookies to remove when consent is withdrawn', 'crumbsignal' ); ?></span><input type="text" name="crumbsignal_settings[scripts][<?php echo esc_attr( $index ); ?>][cookies]" value="<?php echo esc_attr( $script['cookies'] ?? '' ); ?>" placeholder="cookie_name, service_prefix_*"><small><?php esc_html_e( 'Comma-separated. Use a trailing * to match a prefix. Third-party and HttpOnly cookies cannot be removed by browser JavaScript.', 'crumbsignal' ); ?></small></label>
-		</div><?php
 	}
 }

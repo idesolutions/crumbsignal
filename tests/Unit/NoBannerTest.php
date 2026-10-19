@@ -48,7 +48,6 @@ final class NoBannerTest extends TestCase {
 	private function settings( array $overrides = array() ): array {
 		return array_merge(
 			CrumbSignal_Settings::defaults(),
-			array( 'scripts' => array() ),
 			$overrides
 		);
 	}
