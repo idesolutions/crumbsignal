@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Clear consent. Clean signals. Add a customizable cookie banner, hold back optional scripts until consent, and connect consent choices to Google Consent Mode v2.
+Clear consent. Clean signals. A customizable cookie banner that holds optional scripts until consent and connects to Google Consent Mode v2.
 
 == Description ==
 CrumbSignal is a self-hosted WordPress consent manager. It stores consent in a first-party cookie, keeps configured scripts inactive until the matching category is accepted, and communicates visitor choices to Google tags.
