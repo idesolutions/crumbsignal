@@ -3,7 +3,6 @@ declare( strict_types=1 );
 
 namespace CrumbSignal\Tests\Unit;
 
-use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use CrumbSignal_Frontend;
 use CrumbSignal_Settings;
@@ -35,13 +34,6 @@ final class NoBannerTest extends TestCase {
 		);
 		Functions\when( 'wp_print_script_tag' )->justReturn( null );
 		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
-		// GuardRelay is not part of these tests; another test class may have defined its helper, so say what it returns.
-		Functions\when( 'guardrelay_analytics_gate_active' )->justReturn( false );
-
-		// The include adds a filter as it loads, which needs Brain Monkey running, so load it here (once).
-		if ( ! function_exists( 'crumbsignal_register_gate_consumer' ) ) {
-			require_once dirname( __DIR__, 2 ) . '/includes/integration-guardrelay.php';
-		}
 	}
 
 	/** @param array<string, mixed> $overrides */
@@ -133,41 +125,5 @@ final class NoBannerTest extends TestCase {
 		$this->assertStringContainsString( 'var state=saved?saved.categories:fresh;', $js, 'a choice a visitor already made still wins' );
 		$this->assertStringContainsString( 'if(rejected){state={necessary:true,preferences:false,analytics:false,marketing:false};}', $js, 'Global Privacy Control and Do Not Track still reject' );
 		$this->assertStringContainsString( "consent_source:saved?'stored':(rejected?'privacy_signal':(c.noBanner?'no_banner':'default'))", $js, 'the dataLayer says why' );
-	}
-
-	// ---- Telling GuardRelay -------------------------------------------------------------------------
-
-	public function test_crumbsignal_registers_itself_as_a_tag_loader_guardrelay_can_rely_on(): void {
-		Functions\when( 'crumbsignal_get_settings' )->justReturn( $this->settings( array( 'enabled' => 1 ) ) );
-
-		$this->assertSame( array( 'CrumbSignal' => CRUMBSIGNAL_VERSION ), crumbsignal_register_gate_consumer( array() ) );
-		$this->assertSame(
-			array( 'Other' => '1.0', 'CrumbSignal' => CRUMBSIGNAL_VERSION ),
-			crumbsignal_register_gate_consumer( array( 'Other' => '1.0' ) ),
-			'other loaders are kept'
-		);
-	}
-
-	public function test_a_disabled_crumbsignal_is_not_a_tag_loader(): void {
-		Functions\when( 'crumbsignal_get_settings' )->justReturn( $this->settings( array( 'enabled' => 0 ) ) );
-
-		$this->assertSame( array(), crumbsignal_register_gate_consumer( array() ) );
-	}
-
-	public function test_a_site_that_ignores_guardrelay_is_not_a_tag_loader_for_it(): void {
-		Functions\when( 'crumbsignal_get_settings' )->justReturn( $this->settings( array( 'enabled' => 1 ) ) );
-		Filters\expectApplied( 'crumbsignal_gate_with_guardrelay' )->andReturn( false );
-
-		$this->assertSame( array(), crumbsignal_register_gate_consumer( array() ) );
-	}
-
-	public function test_the_hook_is_in_place(): void {
-		$source = (string) file_get_contents( dirname( __DIR__, 2 ) . '/includes/integration-guardrelay.php' );
-
-		$this->assertStringContainsString( "add_filter( 'guardrelay_gate_consumers', 'crumbsignal_register_gate_consumer' );", $source );
-
-		$main = (string) file_get_contents( dirname( __DIR__, 2 ) . '/crumbsignal.php' );
-
-		$this->assertStringContainsString( "includes/integration-guardrelay.php", $main, 'and the plugin loads it' );
 	}
 }

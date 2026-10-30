@@ -12,42 +12,6 @@
   var revisit;
   var previousFocus;
 
-  // GuardRelay is a separate plugin that can tell a page whether its visitor is a bot. When this page was
-  // built to listen for it (state.config.gate), tags wait for that answer, and a bot is shown no banner and
-  // given no tags and no consent cookie. Without GuardRelay none of this runs and nothing waits.
-  var GATE_TIMEOUT_MS = 2500;
-  var gatePromise = null;
-
-  // Resolves true for a bot, false for everyone else. Never holds a visitor's tags hostage to another plugin:
-  // if no answer arrives in time, carry on as if they are not a bot.
-  function visitorGate() {
-    if (gatePromise) return gatePromise;
-    gatePromise = new Promise(function (resolve) {
-      if (!state.config.gate) { resolve(false); return; }
-      var api = window.GuardRelay;
-      if (api && api.verdict) { resolve(api.verdict.allow === false); return; }
-      var timer;
-      function finish(bot) {
-        window.clearTimeout(timer);
-        document.removeEventListener('guardrelay:verdict', onVerdict);
-        resolve(bot);
-      }
-      function onVerdict(event) {
-        var verdict = (event && event.detail) || (window.GuardRelay && window.GuardRelay.verdict) || {};
-        finish(verdict.allow === false);
-      }
-      document.addEventListener('guardrelay:verdict', onVerdict);
-      timer = window.setTimeout(function () { finish(false); }, GATE_TIMEOUT_MS);
-    });
-    return gatePromise;
-  }
-
-  // Run something now, unless this page waits on the gate, in which case run it for anyone who is not a bot.
-  function afterGate(callback) {
-    if (!state.config.gate) { callback(); return; }
-    visitorGate().then(function (bot) { if (!bot) callback(); });
-  }
-
   function categories(value) {
     return { necessary: true, preferences: value, analytics: value, marketing: value };
   }
@@ -104,7 +68,7 @@
         return new Promise(function (resolve) {
           var active = document.createElement('script');
           Array.prototype.forEach.call(blocked.attributes, function (attribute) {
-            if (['type', 'data-src', 'data-crumbsignal-category', 'data-crumbsignal-gate', 'data-crumbsignal-id', 'data-crumbsignal-activated', 'nonce'].indexOf(attribute.name) === -1) {
+            if (['type', 'data-src', 'data-crumbsignal-category', 'data-crumbsignal-id', 'data-crumbsignal-activated', 'nonce'].indexOf(attribute.name) === -1) {
               active.setAttribute(attribute.name, attribute.value);
             }
           });
@@ -135,27 +99,6 @@
     });
   }
 
-  // Scripts the page printed inert only so a bot could be kept from them (advanced Google mode on a page that
-  // listens for GuardRelay). They run for anyone who is not a bot, whatever that visitor has consented to,
-  // exactly as they would have if they had been printed live.
-  function activateGated() {
-    return activateMatching('script[type="text/plain"][data-crumbsignal-gate]', function () { return true; });
-  }
-
-  function activateScripts(selected) {
-    if (!state.config.gate) return activateNow(selected);
-    return visitorGate().then(function (bot) { return bot ? undefined : activateNow(selected); });
-  }
-
-  // A bot is shown nothing: no banner, no preferences, no revisit button, and (above) no tags.
-  function suppressForBot() {
-    state.bot = true;
-    closeAll();
-    if (root) root.hidden = true;
-    document.documentElement.setAttribute('data-crumbsignal-bot', '');
-    document.dispatchEvent(new CustomEvent('crumbsignal:bot'));
-  }
-
   function persist(selected, source) {
     var previous = state.categories;
     var revoked = !!((previous.analytics && !selected.analytics) || (previous.marketing && !selected.marketing) || (previous.preferences && !selected.preferences));
@@ -176,7 +119,7 @@
       consent_preferences: !!selected.preferences,
       consent_source: source
     });
-    activateScripts(selected);
+    activateNow(selected);
     closeAll();
     if (revisit) revisit.hidden = false;
     document.dispatchEvent(new CustomEvent('crumbsignal:change', { detail: payload }));
@@ -231,23 +174,16 @@
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
 
-  // The banner is switched off: nothing is printed for visitors to see. This script's only jobs are to release the
-  // page's scripts (to everyone but a bot, when the page listens for GuardRelay) and to keep a bot's page empty.
+  // The banner is switched off: nothing is printed for visitors to see. This script's only job is to release the
+  // page's scripts.
   function initWithoutBanner() {
-    activateScripts(state.categories);
+    activateNow(state.categories);
     window.CrumbSignal = {
       getConsent: function () { return JSON.parse(JSON.stringify(state.categories)); },
       openPreferences: function () {},
       acceptAll: function () {},
-      rejectOptional: function () {},
-      isBot: function () { return !!state.bot; }
+      rejectOptional: function () {}
     };
-    if (state.config.gate) {
-      visitorGate().then(function (bot) {
-        if (bot) suppressForBot();
-        else activateGated();
-      });
-    }
   }
 
   function init() {
@@ -286,8 +222,8 @@
     if (state.consent || state.privacySignal) {
       banner.hidden = true;
       if (revisit) revisit.hidden = false;
-      activateScripts(state.categories);
-      if (state.privacySignal && !state.consent) afterGate(function () { persist(categories(false), 'privacy_signal'); });
+      activateNow(state.categories);
+      if (state.privacySignal && !state.consent) persist(categories(false), 'privacy_signal');
     } else {
       banner.hidden = false;
       if (revisit) revisit.hidden = true;
@@ -297,19 +233,11 @@
       getConsent: function () { return JSON.parse(JSON.stringify(state.categories)); },
       openPreferences: openPreferences,
       acceptAll: function () { persist(categories(true), 'api'); },
-      rejectOptional: function () { persist(categories(false), 'api'); },
-      isBot: function () { return !!state.bot; }
+      rejectOptional: function () { persist(categories(false), 'api'); }
     };
 
     // Arriving on a URL that ends in #crumbsignal-preferences (e.g. from a link on another page) opens them at once.
     if (window.location && window.location.hash === '#crumbsignal-preferences') openPreferences();
-
-    if (state.config.gate) {
-      visitorGate().then(function (bot) {
-        if (bot) suppressForBot();
-        else activateGated();
-      });
-    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

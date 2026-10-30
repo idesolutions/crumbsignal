@@ -15,7 +15,7 @@ final class CrumbSignal_Frontend {
 	public static function init() {
 		/**
 		 * Filters the settings CrumbSignal uses to render the frontend consent
-		 * banner and gate scripts.
+		 * banner and release consent-gated scripts.
 		 *
 		 * This only affects what visitors see; it never touches the stored
 		 * option or what the wp-admin settings screen displays, so overriding
@@ -55,7 +55,6 @@ final class CrumbSignal_Frontend {
 			'respectGpc'           => (bool) $s['respect_gpc'],
 			'respectDnt'           => (bool) $s['respect_dnt'],
 			'cookieName'           => 'crumbsignal_consent',
-			'gate'                 => self::gate_active(),
 			'noBanner'             => ! empty( $s['no_banner'] ),
 		);
 		$js = <<<'JS'
@@ -82,40 +81,15 @@ JS;
 		self::google_tags();
 	}
 
-	/**
-	 * Whether this page should wait for a verdict on its visitor (is it a bot?) before loading tags or
-	 * showing the banner. True only when GuardRelay is installed and has its analytics gate switched on;
-	 * a site without GuardRelay is unaffected and nothing ever waits.
-	 *
-	 * @return bool
-	 */
-	private static function gate_active() {
-		$active = function_exists( 'guardrelay_analytics_gate_active' ) && guardrelay_analytics_gate_active();
-
-		/**
-		 * Filters whether tags wait for GuardRelay's verdict on the visitor.
-		 *
-		 * Return false to ignore GuardRelay even when its gate is on.
-		 *
-		 * @param bool $active Whether GuardRelay's analytics gate is active.
-		 */
-		return (bool) apply_filters( 'crumbsignal_gate_with_guardrelay', $active );
-	}
-
 	/** @return void */
 	private static function google_tags() {
 		$s       = self::$settings;
-		$gate    = self::gate_active();
 		$tag_ids = array_values( array_filter( array( $s['ga4_id'], $s['google_ads_id'] ) ) );
 		if ( ! empty( $s['gtm_id'] ) ) {
 			$attributes = array( 'id' => 'crumbsignal-gtm' );
 			if ( empty( $s['advanced_consent_mode'] ) ) {
 				$attributes['type']                      = 'text/plain';
 				$attributes['data-crumbsignal-category'] = 'google';
-			} elseif ( $gate ) {
-				// Advanced mode normally loads the tag at once. Hold it until the visitor is known not to be a bot.
-				$attributes['type']                   = 'text/plain';
-				$attributes['data-crumbsignal-gate'] = 'verdict';
 			}
 			$loader = "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer'," . wp_json_encode( $s['gtm_id'] ) . ');';
 			wp_print_inline_script_tag( $loader, $attributes );
@@ -124,14 +98,12 @@ JS;
 		if ( empty( $s['gtm_id'] ) && ! empty( $tag_ids ) ) {
 			$library_url = 'https://www.googletagmanager.com/gtag/js?id=' . rawurlencode( $tag_ids[0] );
 			if ( ! empty( $s['advanced_consent_mode'] ) ) {
-				// With the gate on, both scripts are printed inert and released once the visitor is known not to be a bot.
-				$held = $gate ? array( 'type' => 'text/plain', 'data-crumbsignal-gate' => 'verdict' ) : array();
-				wp_print_script_tag( $gate ? array_merge( array( 'data-src' => $library_url ), $held ) : array( 'async' => true, 'src' => $library_url ) );
+				wp_print_script_tag( array( 'async' => true, 'src' => $library_url ) );
 				$configuration = "gtag('js',new Date());";
 				foreach ( $tag_ids as $tag_id ) {
 					$configuration .= "gtag('config'," . wp_json_encode( $tag_id ) . ');';
 				}
-				wp_print_inline_script_tag( $configuration, array_merge( array( 'id' => 'crumbsignal-google-tags' ), $held ) );
+				wp_print_inline_script_tag( $configuration, array( 'id' => 'crumbsignal-google-tags' ) );
 			} else {
 				wp_print_script_tag( array( 'type' => 'text/plain', 'data-crumbsignal-category' => 'google', 'data-src' => $library_url ) );
 				wp_print_inline_script_tag( "gtag('js',new Date());", array( 'type' => 'text/plain', 'data-crumbsignal-category' => 'google' ) );
@@ -233,7 +205,7 @@ JS;
 			</section>
 			<div class="crumbsignal__overlay" hidden></div>
 			<section class="crumbsignal__modal" role="dialog" aria-modal="true" aria-labelledby="crumbsignal-modal-heading" hidden>
-				<header><div><span><?php esc_html_e( 'PRIVACY CENTER', 'crumbsignal' ); ?></span><h2 id="crumbsignal-modal-heading"><?php echo esc_html( $s['preferences_heading'] ); ?></h2></div><button type="button" class="crumbsignal__close" data-crumbsignal-action="close" aria-label="<?php esc_attr_e( 'Close cookie preferences', 'crumbsignal' ); ?>"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+				<header><div><span><?php esc_html_e( 'PRIVACY CENTER', 'crumbsignal' ); ?></span><h2 id="crumbsignal-modal-heading"><?php echo esc_html( $s['preferences_heading'] ); ?></h2></div><button type="button" class="crumbsignal__close" data-crumbsignal-action="close" aria-label="<?php esc_attr_e( 'Close cookie preferences', 'crumbsignal' ); ?>"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
 				<div class="crumbsignal__categories">
 					<?php self::category( 'necessary', __( 'Necessary', 'crumbsignal' ), $s['necessary_description'], true ); ?>
 					<?php self::category( 'preferences', __( 'Preferences', 'crumbsignal' ), $s['preferences_description'] ); ?>

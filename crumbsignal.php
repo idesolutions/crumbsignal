@@ -37,7 +37,6 @@ define( 'CRUMBSIGNAL_URL', plugin_dir_url( __FILE__ ) );
 require_once CRUMBSIGNAL_PATH . 'includes/class-crumbsignal-settings.php';
 require_once CRUMBSIGNAL_PATH . 'includes/class-crumbsignal-admin.php';
 require_once CRUMBSIGNAL_PATH . 'includes/class-crumbsignal-frontend.php';
-require_once CRUMBSIGNAL_PATH . 'includes/integration-guardrelay.php';
 
 /**
  * Return sanitized plugin settings merged with defaults.

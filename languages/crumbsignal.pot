@@ -95,10 +95,8 @@ msgid ""
 "a choice a visitor already made, and Global Privacy Control or Do Not Track "
 "if those options below are on. Use it only where consent is not required for "
 "your visitors; you remain responsible for complying with the law that "
-"applies to you. A common use is keeping bots out of analytics with "
-"GuardRelay without showing anyone a banner. (To remove CrumbSignal entirely, "
-"including its script handling, turn off \"Enable the cookie banner\" above "
-"instead.)"
+"applies to you. (To remove CrumbSignal entirely, including its script "
+"handling, turn off \"Enable the cookie banner\" above instead.)"
 msgstr ""
 
 #: includes/class-crumbsignal-admin.php:92
@@ -193,22 +191,22 @@ msgid "Category descriptions"
 msgstr ""
 
 #: includes/class-crumbsignal-admin.php:117
-#: includes/class-crumbsignal-frontend.php:238
+#: includes/class-crumbsignal-frontend.php:210
 msgid "Necessary"
 msgstr ""
 
 #: includes/class-crumbsignal-admin.php:118
-#: includes/class-crumbsignal-frontend.php:239
+#: includes/class-crumbsignal-frontend.php:211
 msgid "Preferences"
 msgstr ""
 
 #: includes/class-crumbsignal-admin.php:119
-#: includes/class-crumbsignal-frontend.php:240
+#: includes/class-crumbsignal-frontend.php:212
 msgid "Analytics"
 msgstr ""
 
 #: includes/class-crumbsignal-admin.php:120
-#: includes/class-crumbsignal-frontend.php:241
+#: includes/class-crumbsignal-frontend.php:213
 msgid "Marketing"
 msgstr ""
 
@@ -347,37 +345,37 @@ msgstr ""
 msgid "Live preview"
 msgstr ""
 
-#: includes/class-crumbsignal-frontend.php:204
+#: includes/class-crumbsignal-frontend.php:176
 msgid "Google Tag Manager"
 msgstr ""
 
-#: includes/class-crumbsignal-frontend.php:219
+#: includes/class-crumbsignal-frontend.php:191
 msgid "Cookie Preferences"
 msgstr ""
 
-#: includes/class-crumbsignal-frontend.php:227
+#: includes/class-crumbsignal-frontend.php:199
 msgid "Open cookie preferences"
 msgstr ""
 
-#: includes/class-crumbsignal-frontend.php:231
+#: includes/class-crumbsignal-frontend.php:203
 msgid "Learn more"
 msgstr ""
 
-#: includes/class-crumbsignal-frontend.php:236
+#: includes/class-crumbsignal-frontend.php:208
 msgid "PRIVACY CENTER"
 msgstr ""
 
-#: includes/class-crumbsignal-frontend.php:236
+#: includes/class-crumbsignal-frontend.php:208
 msgid "Close cookie preferences"
 msgstr ""
 
 #. translators: %s is the cookie category name (e.g. "Analytics").
-#: includes/class-crumbsignal-frontend.php:253
+#: includes/class-crumbsignal-frontend.php:225
 #, php-format
 msgid "Allow %s cookies"
 msgstr ""
 
-#: includes/class-crumbsignal-frontend.php:255
+#: includes/class-crumbsignal-frontend.php:227
 msgid "Always Active"
 msgstr ""
 

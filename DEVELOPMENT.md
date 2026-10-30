@@ -23,48 +23,16 @@ Without the floating button, reopen the preferences from your own markup: the `[
 
 The document also emits `crumbsignal:change` with the saved consent payload in `event.detail`.
 
-## GuardRelay gate
-
-GuardRelay is a separate plugin that can say whether a visitor is a bot. The contract is small and generic:
-
-* PHP: `guardrelay_analytics_gate_active()` returns true when visitors will be given a real yes/no.
-  CrumbSignal calls it (if it exists) when printing the page and records the result as `gate` in the bootstrap config
-  (`window.CrumbSignalState.config.gate`). Filter: `crumbsignal_gate_with_guardrelay`.
-* Browser: `window.GuardRelay.verdict` is `{ allow: false, ... }` for a bot; the `guardrelay:verdict` document event
-  fires when it is published (`event.detail` is the verdict). `window.GuardRelay.pending` is true until then.
-
-When `gate` is true, `crumbsignal.js`:
-
-1. waits for the verdict (already published, or the event) for at most 2.5 s, then proceeds as if the visitor is not a
-   bot -- it never holds tags hostage to another plugin;
-2. for a bot: hides the whole banner root, activates **no** tag (consented or not), stores **no** consent cookie
-   (including for Global Privacy Control), sets `data-crumbsignal-bot` on `<html>`, fires `crumbsignal:bot`, and
-   `CrumbSignal.isBot()` returns true;
-3. for anyone else: behaves as before, with tag activation (and in advanced mode the held Google tags) released once the
-   verdict is in. The banner is never delayed.
-
-In advanced consent mode the Google tags are normally printed live at the top of the page. With the gate they are printed
-as `type="text/plain" data-crumbsignal-gate="verdict"` and released by the script for non-bots regardless of consent,
-which is what advanced mode does anyway. Strict mode already holds tags until consent, so only activation waits.
-
-### Banner off (`no_banner`)
+## Banner off (`no_banner`)
 
 `no_banner` (default 0; phrased as "banner off" so a settings save that omits the key leaves the banner ON) prints no banner
 markup and loads no banner CSS, but the bootstrap and `crumbsignal.js` still run: the consent state defaults to all categories
 granted (Consent Mode `granted` defaults, `consent_source: 'no_banner'` in the dataLayer), a stored visitor choice still wins,
-and Global Privacy Control / Do Not Track (when enabled) still reject. Scripts activate with no waiting unless the GuardRelay
-gate is on, in which case a bot gets nothing. No consent cookie is ever written in this mode.
+and Global Privacy Control / Do Not Track (when enabled) still reject. Scripts activate with no waiting. No consent cookie is ever written in this mode.
 `window.CrumbSignal.openPreferences/acceptAll/rejectOptional` become harmless no-ops so third-party code that calls them keeps
 working. "Enable the cookie banner" (`enabled`) is different: off, CrumbSignal prints nothing at all, tags included.
 
-### Telling GuardRelay (`includes/integration-guardrelay.php`)
-
-CrumbSignal registers itself on the `guardrelay_gate_consumers` filter (name => version) when it is enabled, so GuardRelay's
-admin screens know a tag loader that honours the verdict is present. It is registered in the main plugin load, not in the
-frontend class, because the frontend class does nothing in wp-admin, which is where GuardRelay shows its warning.
-
-Tests: `node tests/js/gate.test.js` (browser logic against a fake page) and `vendor/bin/phpunit`
-(`tests/Unit/FrontendGateTest.php`).
+Tests: `node tests/js/consent.test.js` (browser logic against a fake page) and `vendor/bin/phpunit`.
 
 ## Script gating markup
 

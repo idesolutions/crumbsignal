@@ -24,10 +24,9 @@ CrumbSignal is a self-hosted WordPress consent manager. It stores consent in a f
 * Category-based script gating with a simple markup attribute (no code is entered or stored in the plugin)
 * First-party cookie cleanup rules when consent is withdrawn
 * Global Privacy Control support
-* Works with GuardRelay (separate plugin): a visitor GuardRelay identifies as a bot gets no banner, no analytics tags and no consent cookie
-* Optional "banner off" mode: show no banner but keep your scripts running (for sites that don't need consent, or to use GuardRelay without a banner)
+* Optional "banner off" mode: show no banner but keep your scripts running (for sites where consent isn't required)
 * Accessible modal, focus management, and reduced-motion support
-* Custom colors, copy, position, and CSS
+* Custom colors, copy, and position
 * No account, external dashboard, or pageview limits
 
 CrumbSignal is a technical consent tool. Correct configuration and accurate privacy disclosures remain the website owner's responsibility. This plugin does not provide legal advice or guarantee compliance with any law.
@@ -44,7 +43,7 @@ CrumbSignal itself sends no data anywhere and has no account, dashboard or remot
 * Google Terms of Service: https://policies.google.com/terms
 * Google Privacy Policy: https://policies.google.com/privacy
 
-Any other third-party script you mark for gating yourself loads from the address you give it, and only after the visitor accepts its category. You are responsible for disclosing those services to your visitors. CrumbSignal makes no requests to GuardRelay; the integration only reads a verdict that the separate GuardRelay plugin publishes in the visitor's browser.
+Any other third-party script you mark for gating yourself loads from the address you give it, and only after the visitor accepts its category. You are responsible for disclosing those services to your visitors.
 
 == Installation ==
 1. Upload the `crumbsignal` folder to `/wp-content/plugins/` or install the ZIP from Plugins > Add New > Upload Plugin.
@@ -86,8 +85,4 @@ CrumbSignal reads and writes consent entirely in the visitor's browser: a first-
 = 1.0.0 =
 
 * Initial security-reviewed release.
-* Optional GuardRelay integration. When GuardRelay's analytics check is set to Exclude, tags wait briefly for its verdict on the visitor (and give up after 2.5 seconds, so a problem there can never cost a site its tags). A visitor identified as a bot is shown no banner, no analytics or marketing tags are activated for it, and no consent cookie is stored. Advanced-mode Google tags are held until the verdict is in. Sites without GuardRelay, or with it in Observe mode, are unchanged and nothing waits.
-* "Turn the banner off but keep my scripts running" (Settings > General). CrumbSignal shows no banner and runs your analytics, marketing and preferences scripts for every visitor without asking. It still respects a choice a visitor already made, and Global Privacy Control or Do Not Track when those options are on. For sites where consent isn't required (you remain responsible for compliance), and for keeping bots out of analytics with GuardRelay without showing anyone a banner. Saved settings that lack the option keep the banner on.
-* CrumbSignal tells GuardRelay it can hold back tags (filter `guardrelay_gate_consumers`), so GuardRelay does not warn that bots will still be counted.
-* `window.CrumbSignal.isBot()`, the `crumbsignal:bot` event, and `data-crumbsignal-bot` on the html element.
-* Filter: `crumbsignal_gate_with_guardrelay` (return false to ignore GuardRelay).
+* "Turn the banner off but keep my scripts running" (Settings > General). CrumbSignal shows no banner and runs your analytics, marketing and preferences scripts for every visitor without asking. It still respects a choice a visitor already made, and Global Privacy Control or Do Not Track when those options are on. For sites where consent isn't required (you remain responsible for compliance). Saved settings that lack the option keep the banner on.
