@@ -4,3 +4,5 @@
 .phpunit.cache/
 *.zip
 *.sha256
+
+svn-staging/

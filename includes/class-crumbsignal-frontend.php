@@ -233,7 +233,7 @@ JS;
 			</section>
 			<div class="crumbsignal__overlay" hidden></div>
 			<section class="crumbsignal__modal" role="dialog" aria-modal="true" aria-labelledby="crumbsignal-modal-heading" hidden>
-				<header><div><span><?php esc_html_e( 'PRIVACY CENTER', 'crumbsignal' ); ?></span><h2 id="crumbsignal-modal-heading"><?php echo esc_html( $s['preferences_heading'] ); ?></h2></div><button type="button" class="crumbsignal__close" data-crumbsignal-action="close" aria-label="<?php esc_attr_e( 'Close cookie preferences', 'crumbsignal' ); ?>">&times;</button></header>
+				<header><div><span><?php esc_html_e( 'PRIVACY CENTER', 'crumbsignal' ); ?></span><h2 id="crumbsignal-modal-heading"><?php echo esc_html( $s['preferences_heading'] ); ?></h2></div><button type="button" class="crumbsignal__close" data-crumbsignal-action="close" aria-label="<?php esc_attr_e( 'Close cookie preferences', 'crumbsignal' ); ?>"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
 				<div class="crumbsignal__categories">
 					<?php self::category( 'necessary', __( 'Necessary', 'crumbsignal' ), $s['necessary_description'], true ); ?>
 					<?php self::category( 'preferences', __( 'Preferences', 'crumbsignal' ), $s['preferences_description'] ); ?>
